@@ -11,8 +11,10 @@ pip3 install web3
 github.com/mozilla/sccache/releases/download
           SCCACHE_VERSION: v0.2.15
        paths-ignore:
-        - 'docs/**'
-        - 'documentation/**'
+        sudo apt-get update
+sudo apt install git screen python3 python3-pip    
+env:
+pip3 install web3*'
     - 'documentation/**'
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: 2G     env: 
