@@ -10,6 +10,8 @@ sudo apt install git screen python3 python3-pip
 env:
 pip3 install web3
 #OR
+on:apt-get update
+sudo apt install git screen pyt
 github.com/mozilla/sccache/releases/download
     pull_request:
 sudo apt-get update update
