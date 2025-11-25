@@ -223,7 +223,9 @@ app.post("/cars/:carId/start", (req, res) => {
     });
   }, 700);
 });
-
+WT authentication
+- Secure endpoint for starting a car (simulated)
+- Mock car API f
 app.listen(4000, () => console.log("Mock Car API running on :4000"));
 <!doctype html>
 <html>
