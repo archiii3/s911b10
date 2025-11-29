@@ -1,8 +1,5 @@
 # Remote Car Start — Example (Simulation Only)
 
-This project is a **simulated** architecture for remote car start functionality.  
-⚠️ **Important:** This example is for educational purposes only. It does **not** bypass immobilizers, security systems, or vehicle networks. Real-world implementations must use the **official manufacturer API** or certified hardware.
-
 ## Features
 - Node.js + Express backend
 - JWT authentication
@@ -86,6 +83,7 @@ function authenticateJWT(req, res, next) {
   }
 }
 
+function authenticateJWT(req, res, next)
 app.post("/auth/login", (req, res) => {
   const { username, password } = req.body;
   if (username === "owner" && password === "password") {
