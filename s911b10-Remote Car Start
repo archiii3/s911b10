@@ -10,7 +10,8 @@
  client
 - Security best practices included
 ---
-
+- Basic HTML/JS client
+- Security best practices included
 ## Quick Start
 1. Install Node.js (v18 or newer).
 2. In the project folder:
