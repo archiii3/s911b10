@@ -21,7 +21,9 @@ cp .env.example .env
 npm start
 
 ---
-
+- Basic HTML/JS client
+- Security best practices included
+ client
 # `package.json`
 ```json
 {
