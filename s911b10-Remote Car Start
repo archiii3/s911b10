@@ -19,7 +19,9 @@
 npm install
 cp .env.example .env
 npm start
-
+- Node.js + Express backend
+- JWT authentication
+- Secure endpoint for starting a car (simulated)
 ---
 - Basic HTML/JS client
 - Security best practices included
