@@ -1,5 +1,7 @@
 # Remote Car Start — Example (Simulation Only)
 
+- Basic HTML/JS client
+- Security best practices included
 ## Features
 - Node.js + Express backend
 - JWT authentication
