@@ -49,9 +49,11 @@ npm start
     "morgan": "^1.10.0"
   }
 }
-PORT=3000
-JWT_SECRET=change_this_to_a_strong_secret
-JWT_EXPIRES_IN=1h
+---
+- Basic HTML/JS client
+- Security best practices included
+## Quick Start
+1. Install Node.js (v18 or newer).
 MOCK_CAR_API_URL=http://localhost:4000
 import express from "express";
 import bodyParser from "body-parser";
