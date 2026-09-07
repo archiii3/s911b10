@@ -1,283 +1,131 @@
-# Remote Car Start — Example (Simulation Only)
+# devpulse.py
+import json
+import os
+from datetime import datetime
 
-- Basic HTML/JS client
-- Security best practices included
-## Features
-- Node.js + Express backend
-- JWT authentication
-- Secure endpoint for starting a car (simulated)
-- Mock car API for testing
-- Basic HTML/JS client
-- Security best practices included
- client
-- Security best practices included
----
-- Basic HTML/JS client
-- Security best practices included
-## Quick Start
-1. Install Node.js (v18 or newer).
-2. In the project folder:
-```bash
-npm install
-cp .env.example .env
-npm start
-- Node.js + Express backend
-- JWT authentication
-- Secure endpoint for starting a car (simulated)
----
-- Basic HTML/JS client
-- Security best practices included
- client
-# `package.json`
-```json
-{
-  "name": "remote-car-start-example",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "start": "node server.js",
-    "dev": "NODE_ENV=development node server.js"
-  },- Secure endpoint for starting a car (simulated)
-- Mock car API for testing
-  "dependencies": {
-    "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.0",
-    "body-parser": "^1.20.2",
-    "helmet": "^7.0.0",
-    "cors": "^2.8.5",
-    "express-rate-limit": "^6.9.0",
-    "morgan": "^1.10.0"
-  }
-}
----
-- Basic HTML/JS client
-- Security best practices included
-## Quick Start
-1. Install Node.js (v18 or newer).
-MOCK_CAR_API_URL=http://localhost:4000
-import express from "express";
-import bodyParser from "body-parser";
-import jwt from "jsonwebtoken";
-import helmet from "helmet";
-import cors from "cors";
-import rateLimit from "express-rate-limit";
-import morgan from "morgan";
-import fetch from "node-fetch";
+DATA_FILE = "devpulse.json"
 
-const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
-const MOCK_CAR_API = process.env.MOCK_CAR_API_URL || "http://localhost:4000";
 
-const app = express();
-app.use(helmet());
-app.use(cors());
-app.use(bodyParser.json());
-app.use(morgan("tiny"));
+def load_data():
+    if not os.path.exists(DATA_FILE):
+        return []
 
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 10,
-});
-app.use("/api/", limiter);
+    with open(DATA_FILE, "r", encoding="utf-8") as file:
+        return json.load(file)
 
-function authenticateJWT(req, res, next) {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  try {
-    req.user = jwt.verify(auth.split(" ")[1], JWT_SECRET);
-    next();
-  } catch {
-    return res.status(401).json({ error: "Invalid token" });
-  }
-}
 
-function authenticateJWT(req, res, next)
-app.post("/auth/login", (req, res) => {
-  const { username, password } = req.body;
-  if (username === "owner" && password === "password") {
-    const token = jwt.sign({ sub: "owner" }, JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN || "1h",
-    });
-    return res.json({ token });
-  }
-  res.status(401).json({ error: "Invalid credentials" });
-});
+def save_data(data):
+    with open(DATA_FILE, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=2)
 
-app.post("/api/v1/car/:carId/start", authenticateJWT, async (req, res) => {
-  const carId = req.params.carId;
-  const user = req.user;
 
-  if (user.sub !== "owner") {
-    return res.status(403).json({ error: "Forbidden" });
-  }
+def add_session(project, minutes, note=""):
+    data = load_data()
 
-  console.log(`[AUDIT] user=${user.sub} requested start for car=${carId}`);
-
-  try {
-    const resp = await fetch(`${MOCK_CAR_API}/cars/${carId}/start`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestedBy: user.sub }),
-    });
-
-    if (!resp.ok) {
-      return res.status(502).json({ error: "Car API communication failed" });
+    session = {
+        "project": project,
+        "minutes": minutes,
+        "note": note,
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
     }
 
-    const data = await resp.json();
-    res.json({ success: true, result: data });
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+    data.append(session)
+    save_data(data)
 
-app.get("/health", (req, res) => res.json({ ok: true }));
+    print(f"✓ Session added: {project} ({minutes} min)")
 
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
-import express from "express";
-import bodyParser from "body-parser";
-import jwt from "jsonwebtoken";
-import helmet from "helmet";
-import cors from "cors";
-import rateLimit from "express-rate-limit";
-import morgan from "morgan";
-import fetch from "node-fetch";
 
-const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
-const MOCK_CAR_API = process.env.MOCK_CAR_API_URL || "http://localhost:4000";
+def show_stats():
+    data = load_data()
 
-const app = express();
-app.use(helmet());
-app.use(cors());
-app.use(bodyParser.json());
-app.use(morgan("tiny"));
+    if not data:
+        print("No sessions recorded yet.")
+        return
 
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 10,
-});
-app.use("/api/", limiter);
+    total_minutes = sum(item["minutes"] for item in data)
 
-function authenticateJWT(req, res, next) {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  try {
-    req.user = jwt.verify(auth.split(" ")[1], JWT_SECRET);
-    next();
-  } catch {
-    return res.status(401).json({ error: "Invalid token" });
-  }
-}
+    projects = {}
+    for item in data:
+        project = item["project"]
+        projects[project] = projects.get(project, 0) + item["minutes"]
 
-app.post("/auth/login", (req, res) => {
-  const { username, password } = req.body;
-  if (username === "owner" && password === "password") {
-    const token = jwt.sign({ sub: "owner" }, JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN || "1h",
-    });
-    return res.json({ token });
-  }
-  res.status(401).json({ error: "Invalid credentials" });
-});
+    print("\n=== DevPulse Stats ===")
+    print(f"Total time: {total_minutes} minutes")
+    print(f"Sessions: {len(data)}")
 
-app.post("/api/v1/car/:carId/start", authenticateJWT, async (req, res) => {
-  const carId = req.params.carId;
-  const user = req.user;
+    print("\nBy project:")
+    for project, minutes in sorted(
+        projects.items(),
+        key=lambda x: x[1],
+        reverse=True
+    ):
+        print(f"  {project}: {minutes} min")
 
-  if (user.sub !== "owner") {
-    return res.status(403).json({ error: "Forbidden" });
-  }
 
-  console.log(`[AUDIT] user=${user.sub} requested start for car=${carId}`);
+def show_history():
+    data = load_data()
 
-  try {
-    const resp = await fetch(`${MOCK_CAR_API}/cars/${carId}/start`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestedBy: user.sub }),
-    });
+    if not data:
+        print("No history available.")
+        return
 
-    if (!resp.ok) {
-      return res.status(502).json({ error: "Car API communication failed" });
-    }
+    print("\n=== Session History ===")
 
-    const data = await resp.json();
-    res.json({ success: true, result: data });
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+    for item in reversed(data):
+        print(
+            f"[{item['date']}] "
+            f"{item['project']} - "
+            f"{item['minutes']} min"
+        )
 
-app.get("/health", (req, res) => res.json({ ok: true }));
+        if item["note"]:
+            print(f"  Note: {item['note']}")
 
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
-import express from "express";
-const app = express();
-app.use(express.json());
 
-app.post("/cars/:carId/start", (req, res) => {
-  const carId = req.params.carId;
-  console.log(`[MOCK] Start requested for ${carId}`, req.body);
+def main():
+    print("DevPulse - Developer Productivity Tracker")
+    print("-----------------------------------------")
 
-  setTimeout(() => {
-    res.json({
-      carId,
-      status: "starting",
-      timestamp: new Date().toISOString()
-    });
-  }, 700);
-});
-WT authentication
-- Secure endpoint for starting a car (simulated)
-- Mock car API f
-app.listen(4000, () => console.log("Mock Car API running on :4000"));
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Remote Start Demo</title>
-</head>
-<body>
-  <h1>Remote Car Start Demo</h1>
+    while True:
+        print("\n1. Add session")
+        print("2. View statistics")
+        print("3. View history")
+        print("4. Exit")
 
-  <label>Token:
-    <input id="token" style="width:400px" />
-  </label>
-  <br/>
+        choice = input("\nSelect an option: ").strip()
 
-  <label>Car ID:
-    <input id="carId" value="car-123" />
-  </label>
-  <br/>
+        if choice == "1":
+            project = input("Project name: ").strip()
 
-  <button id="startBtn">Start Car</button>
+            try:
+                minutes = int(input("Minutes worked: "))
+            except ValueError:
+                print("Please enter a valid number.")
+                continue
 
-  <pre id="out"></pre>
+            note = input("Note (optional): ").strip()
 
-  <script>
-    const out = document.getElementById('out');
+            add_session(project, minutes, note)
 
-    document.getElementById('startBtn').onclick = async () => {
-      const token = document.getElementById('token').value;
-      const carId = document.getElementById('carId').value;
+        elif choice == "2":
+            show_stats()
 
-      const resp = await fetch(`/api/v1/car/${carId}/start`, {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({})
-      });
+        elif choice == "3":
+            show_history()
 
-      const text = await resp.text();
-      out.textContent = text;
-    };
-  </script>
-</body>
-</html>
+        elif choice == "4":
+            print("Keep building.")
+            break
+
+        else:
+            print("Invalid option.")
+
+
+if __name__ == "__main__":
+    main()
+devpulse/
+├── devpulse.py
+├── devpulse.json
+├── README.md
+├── LICENSE
+└── .gitignore
